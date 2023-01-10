@@ -76,6 +76,9 @@ for url in websites:
 
     except Exception as e:
         print("There was an error accessing url:" + url)
+        not_accessed = open("results/not_accessed.txt", "a")
+        not_accessed.write(domain + "\n")
+        not_accessed.close()
         print('Facing error: ' + str(e) + ' ' + css_selector)
 
 text_file.close()
