@@ -25,12 +25,12 @@ generic_rules, domain_specific_rules = get_rules()
 
 chrome_options = Options()
 chrome_options.add_argument("--headless")
-driver = webdriver.Chrome(options=chrome_options)
 
 # driver = webdriver.Chrome()
 for url in websites:
 
     domain = re.search(r"(?:https?://)?(?:www\.)?(.+?)/", url).group(1) #get domain name
+    driver = webdriver.Chrome(options=chrome_options)
 
     try:
         driver.set_page_load_timeout(10)
@@ -73,6 +73,7 @@ for url in websites:
             except Exception as e:
                 print('error with ' + selector.strip() + 'on domain: ' + domain + '. probably 0 width element')
                 continue
+        driver.close()
 
     except Exception as e:
         print("There was an error accessing url:" + url)
