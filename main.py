@@ -13,6 +13,7 @@ import re
 import os
 import time
 import json
+import sys 
 
 if not os.path.exists("results/screenshots"):
     os.makedirs("results")
@@ -41,6 +42,7 @@ for url in websites:
         driver.get(url)
         time.sleep(30)
 
+        current_date = datetime.now().strftime("%Y-%m-%d")
         dom = driver.page_source
         cookies = driver.get_cookies()
         local_storage = driver.execute_script("return window.localStorage;")
@@ -51,6 +53,7 @@ for url in websites:
             os.mkdir(domain_dir)
 
         with open(os.path.join(domain_dir, 'source_code.txt'), 'w') as f:
+            f.write("Scraping Date - {}\n".format(current_date))
             f.write(str(dom))
 
         with open(os.path.join(domain_dir, 'cookies.txt'), 'w') as f:
@@ -68,9 +71,12 @@ for url in websites:
                 elements = soup.select(str(css_selector))
                 if len(elements) > 0:
                     found_selectors.append(css_selector)
+            except KeyboardInterrupt:  
+                print('Terminating Now...')  
+                sys.exit(0)
             except:
                 print('Ignoring selector: ' + css_selector)
-                
+
         ###THIS NEEDS TO BE CHECKED. CURRENTLY ASSUMES THAT ONE LINE HAS ONLY ONE SELECTOR FOR A DOMAIN
         if domain in domain_specific_rules:
             for selector in domain_specific_rules[domain]:
@@ -79,11 +85,7 @@ for url in websites:
                     found_selectors.append(selector)
 
         if len(found_selectors) > 0:
-
-            current_date = datetime.now().strftime("%Y-%m-%d")
-
             with open(os.path.join(domain_dir, 'selectors.txt'), 'w') as f:
-                f.write("CSS selectors - {}\n".format(current_date))
                 for selector in found_selectors:
                     f.write(selector + "\n")
 
@@ -110,6 +112,9 @@ for url in websites:
         not_accessed.write(domain + "\n")
         not_accessed.close()
         print('Facing error: ' + str(e) + ' ' + css_selector)
+    except KeyboardInterrupt:  
+        print('Terminating Now...')  
+        sys.exit(0)
 
 text_file.close()
 driver.close()
