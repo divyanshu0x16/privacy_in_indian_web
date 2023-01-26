@@ -3,6 +3,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 
 from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
 from datetime import datetime
 
@@ -15,9 +16,8 @@ import time
 import json
 import sys 
 
-if not os.path.exists("results/screenshots"):
+if not os.path.exists("results"):
     os.makedirs("results")
-    os.makedirs("results/screenshots")
 
 with open('top-10k.csv', mode='r') as file:
     csvFile = csv.reader(file)
@@ -30,9 +30,7 @@ generic_rules, domain_specific_rules = get_rules()
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 
-# driver = webdriver.Chrome()
-for url in websites:
-
+def scrape_url(url):
     domain = re.search(r"(?:https?://)?(?:www\.)?(.+?)/", url).group(1) #get domain name
     driver = webdriver.Chrome(options=chrome_options)
 
@@ -93,21 +91,30 @@ for url in websites:
             text_file.write(domain + ',' + str(len(found_selectors)) + "\n")
             text_file.close()
 
-        # for i, selector in enumerate(found_selectors):
-        #     try:
-        #         element = driver.find_element(By.CSS_SELECTOR, selector)
-        #         element_screenshot = element.screenshot_as_png
-        #         #save the screenshot
-        #         with open(os.path.join('results/screenshots/', f'{domain}-{i+1}.png'), 'wb') as f:
-        #             f.write(element_screenshot)
+            screenshots_dir = os.path.join(domain_dir, 'screenshots')
+            if not os.path.exists(screenshots_dir):
+                os.makedirs(screenshots_dir)
 
-        #     except Exception as e:
-        #         print('error with ' + selector.strip() + 'on domain: ' + domain + '. probably 0 width element')
-        #         continue
+        for i, selector in enumerate(found_selectors):
+            try:
+                element = driver.find_element(By.CSS_SELECTOR, selector)
+                element_screenshot = element.screenshot_as_png
+                #save the screenshot
+                with open(os.path.join(screenshots_dir, f'{domain}-{i+1}.png'), 'wb') as f:
+                    f.write(element_screenshot)
+
+            except Exception as e:
+                print('error with ' + selector.strip() + 'on domain: ' + domain + '. probably 0 width element')
+                continue
+            except KeyboardInterrupt:  
+                print('Terminating Now...')  
+                sys.exit(0)
+
         driver.quit()
 
     except Exception as e:
         print("There was an error accessing url:" + url)
+        print(e)
         not_accessed = open("results/not_accessed.txt", "a")
         not_accessed.write(domain + "\n")
         not_accessed.close()
@@ -116,5 +123,7 @@ for url in websites:
         print('Terminating Now...')  
         sys.exit(0)
 
-text_file.close()
-driver.close()
+# driver = webdriver.Chrome()
+with ThreadPoolExecutor(max_workers=10) as executor:
+    for url in websites:
+        executor.submit(scrape_url, url)
