@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor
 from tqdm import tqdm
+from multiprocessing import cpu_count
 from datetime import datetime
 
 from rule_list import get_rules
@@ -124,6 +125,6 @@ def scrape_url(url):
         sys.exit(0)
 
 # driver = webdriver.Chrome()
-with ThreadPoolExecutor(max_workers=10) as executor:
+with ThreadPoolExecutor(max_workers=cpu_count() - 1) as executor:
     for url in websites:
         executor.submit(scrape_url, url)
