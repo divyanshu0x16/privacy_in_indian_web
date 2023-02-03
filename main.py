@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 
 from bs4 import BeautifulSoup
@@ -31,12 +32,14 @@ generic_rules, domain_specific_rules = get_rules()
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 
+service = Service(executable_path="/home/ipweb/scraper/chromedriver")
+
 def scrape_url(url):
     domain = re.search(r"(?:https?://)?(?:www\.)?(.+?)/", url).group(1) #get domain name
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options, service=service)
 
     try:
-        driver.set_page_load_timeout(10)
+        driver.set_page_load_timeout(60)
         print("Scraping URL: " + url.strip())
         driver.get(url)
         time.sleep(30)
@@ -65,7 +68,7 @@ def scrape_url(url):
         soup = BeautifulSoup(dom, "lxml")
         found_selectors = []
 
-        for css_selector in tqdm(generic_rules, desc='generic rules', total=len(generic_rules)):
+        for css_selector in tqdm(generic_rules, desc=domain, total=len(generic_rules)):
             try:
                 elements = soup.select(str(css_selector))
                 if len(elements) > 0:
@@ -111,7 +114,7 @@ def scrape_url(url):
                 print('Terminating Now...')  
                 sys.exit(0)
 
-        driver.quit()
+        driver.close()
 
     except Exception as e:
         print("There was an error accessing url:" + url)
@@ -125,6 +128,6 @@ def scrape_url(url):
         sys.exit(0)
 
 # driver = webdriver.Chrome()
-with ThreadPoolExecutor(max_workers=cpu_count() - 1) as executor:
+with ThreadPoolExecutor(5) as executor:
     for url in websites:
         executor.submit(scrape_url, url)
