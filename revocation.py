@@ -18,7 +18,6 @@ with open('banner_domain.csv', mode='r') as file:
     for lines in csvFile:
         websites.append('https://' + lines[0] + "/")
 
-websites = ['https://soundcloud.com/']
 
 chrome_options = Options()
 chrome_options.add_argument("--headless")
@@ -47,6 +46,16 @@ def scraper(url):
                 text_file.write(domain + ',' + str(_str) + "\n")
                 text_file.close()
                 break
+
+        #POSSIBLE WAY TO SEARCH FOR COOKIE NOTICE
+        cookie_notice = 'by continuing to use this site' # OR serves cookies to analyse traffic to this site
+        if(flag == 0):
+            if( cookie_notice in dom.casefold() ):
+                flag = 1
+                print('Found cookie notice in ', domain)
+                text_file = open("results/revocation.txt", "a")
+                text_file.write(domain + ',' + str('Cookie Notice') + "\n")
+                text_file.close()
         
         if(flag == 0):
             text_file = open("results/revocation.txt", "a")
