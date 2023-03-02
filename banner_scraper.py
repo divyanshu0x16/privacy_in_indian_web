@@ -128,6 +128,9 @@ def scrape_url(url):
         sys.exit(0)
 
 # driver = webdriver.Chrome()
-with ThreadPoolExecutor(5) as executor:
-    for url in websites:
-        executor.submit(scrape_url, url)
+
+# Make this thread safe and then run it
+#with ThreadPoolExecutor(5) as executor:
+for url in websites:
+    scrape_url(url)
+    #executor.submit(scrape_url, url)

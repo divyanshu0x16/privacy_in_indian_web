@@ -24,6 +24,7 @@ chrome_options.add_argument("--headless")
 
 service = Service(executable_path="/home/divyanshu/Documents/Academics/Sem8/Privacy\ Considerations\ of\ the\ Indian\ Web\ Ecosystem/scraper/chromedriver")
 
+#TODO:- Check for other closely related terms etc. Such as:- 'cookie's settings' etc.
 possible_revocation = ['cookie preferences', 'cookie settings', 'consent manager', 'privacy settings', 'manage cookies']
 
 def scraper(url):
@@ -48,6 +49,7 @@ def scraper(url):
                 break
 
         #POSSIBLE WAY TO SEARCH FOR COOKIE NOTICE
+        #TODO:- Do this using n-grams | site, websites or services etc.
         cookie_notice = 'by continuing to use this site' # OR serves cookies to analyse traffic to this site
         if(flag == 0):
             if( cookie_notice in dom.casefold() ):
