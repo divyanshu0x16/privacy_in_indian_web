@@ -34,7 +34,7 @@ chrome_options.add_argument("--headless")
 
 service = Service()
 
-possible_revocation = ['cookie preferences', 'cookie settings', 'consent manager', 'privacy settings', 'manage cookies']
+possible_revocation = ['cookie preferences', 'cookie settings', 'consent manager', 'privacy settings', 'manage cookies', 'cookies settings', 'cookies preferences']
 
 def scrape_url(url):
     domain = re.search(r"(?:https?://)?(?:www\.)?(.+?)/", url).group(1) #get domain name
