@@ -32,7 +32,7 @@ generic_rules, domain_specific_rules = get_rules()
 chrome_options = Options()
 chrome_options.add_argument("--headless")
 
-service = Service(executable_path="/home/ipweb/scraper/chromedriver")
+service = Service()
 
 possible_revocation = ['cookie preferences', 'cookie settings', 'consent manager', 'privacy settings', 'manage cookies']
 
@@ -81,7 +81,6 @@ def scrape_url(url):
             except:
                 print('Ignoring selector: ' + css_selector)
 
-        ###THIS NEEDS TO BE CHECKED. CURRENTLY ASSUMES THAT ONE LINE HAS ONLY ONE SELECTOR FOR A DOMAIN
         if domain in domain_specific_rules:
             for selector in domain_specific_rules[domain]:
                 elements = soup.select(str(selector))
@@ -103,7 +102,7 @@ def scrape_url(url):
                 text_file = open("results/banner_domain.txt", "a")
                 text_file.write(domain + ',' + str('None') + "\n")
                 text_file.close()
-                
+
         driver.close()
 
     except Exception as e:
