@@ -30,18 +30,18 @@ with open('top-10k.csv', mode='r') as file:
 generic_rules, domain_specific_rules = get_rules()
 
 chrome_options = Options()
-chrome_options.add_argument("--headless")
+chrome_options.headless = True
 
 service = Service()
-
 possible_revocation = ['cookie preferences', 'cookie settings', 'consent manager', 'privacy settings', 'manage cookies', 'cookies settings', 'cookies preferences']
+
+driver = webdriver.Chrome(options=chrome_options, service=service)
+driver.set_page_load_timeout(10)
 
 def scrape_url(url):
     domain = re.search(r"(?:https?://)?(?:www\.)?(.+?)/", url).group(1) #get domain name
-    driver = webdriver.Chrome(options=chrome_options, service=service)
 
     try:
-        driver.set_page_load_timeout(10)
         print("Scraping URL: " + url.strip())
         driver.get(url)
         time.sleep(15)
@@ -103,15 +103,13 @@ def scrape_url(url):
                 text_file.write(domain + ',' + str('None') + "\n")
                 text_file.close()
 
-        driver.close()
-
     except Exception as e:
         print("There was an error accessing url:" + url)
         print(e)
         not_accessed = open("results/not_accessed.txt", "a")
         not_accessed.write(domain + "\n")
         not_accessed.close()
-        print('Facing error: ' + str(e) + ' ' + css_selector)
+        print('Facing error: ' + str(e))
     except KeyboardInterrupt:  
         print('Terminating Now...')  
         sys.exit(0)
@@ -123,3 +121,5 @@ def scrape_url(url):
 for url in websites:
     scrape_url(url)
     #executor.submit(scrape_url, url)
+
+driver.close()
