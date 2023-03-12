@@ -41,10 +41,10 @@ def scrape_url(url):
     driver = webdriver.Chrome(options=chrome_options, service=service)
 
     try:
-        driver.set_page_load_timeout(60)
+        driver.set_page_load_timeout(10)
         print("Scraping URL: " + url.strip())
         driver.get(url)
-        time.sleep(30)
+        time.sleep(15)
 
         current_date = datetime.now().strftime("%Y-%m-%d")
         dom = driver.page_source
