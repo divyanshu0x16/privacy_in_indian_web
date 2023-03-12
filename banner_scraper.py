@@ -34,6 +34,8 @@ chrome_options.add_argument("--headless")
 
 service = Service(executable_path="/home/ipweb/scraper/chromedriver")
 
+possible_revocation = ['cookie preferences', 'cookie settings', 'consent manager', 'privacy settings', 'manage cookies']
+
 def scrape_url(url):
     domain = re.search(r"(?:https?://)?(?:www\.)?(.+?)/", url).group(1) #get domain name
     driver = webdriver.Chrome(options=chrome_options, service=service)
@@ -87,33 +89,21 @@ def scrape_url(url):
                     found_selectors.append(selector)
 
         if len(found_selectors) > 0:
-            with open(os.path.join(domain_dir, 'selectors.txt'), 'w') as f:
-                for selector in found_selectors:
-                    f.write(selector + "\n")
 
-            text_file = open("results/banner_domain.txt", "a")
-            text_file.write(domain + ',' + str(len(found_selectors)) + "\n")
-            text_file.close()
+            flag = 0
+            for _str in possible_revocation:
+                if( _str in dom.casefold() ):
+                    flag = 1
+                    text_file = open("results/banner_domain.txt", "a")
+                    text_file.write(domain + ',' + str(_str) + "\n")
+                    text_file.close()
+                    break
 
-            screenshots_dir = os.path.join(domain_dir, 'screenshots')
-            if not os.path.exists(screenshots_dir):
-                os.makedirs(screenshots_dir)
-
-        for i, selector in enumerate(found_selectors):
-            try:
-                element = driver.find_element(By.CSS_SELECTOR, selector)
-                element_screenshot = element.screenshot_as_png
-                #save the screenshot
-                with open(os.path.join(screenshots_dir, f'{domain}-{i+1}.png'), 'wb') as f:
-                    f.write(element_screenshot)
-
-            except Exception as e:
-                print('error with ' + selector.strip() + 'on domain: ' + domain + '. probably 0 width element')
-                continue
-            except KeyboardInterrupt:  
-                print('Terminating Now...')  
-                sys.exit(0)
-
+            if(flag == 0):
+                text_file = open("results/banner_domain.txt", "a")
+                text_file.write(domain + ',' + str('None') + "\n")
+                text_file.close()
+                
         driver.close()
 
     except Exception as e:
