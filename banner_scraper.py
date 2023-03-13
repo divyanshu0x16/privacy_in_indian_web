@@ -32,7 +32,8 @@ generic_rules, domain_specific_rules = get_rules()
 chrome_options = Options()
 chrome_options.headless = True
 
-service = Service()
+#Enter path of your executable here
+service = Service(executable_path='/home/ipweb/chromedriver')
 possible_revocation = ['cookie preferences', 'cookie settings', 'consent manager', 'privacy settings', 'manage cookies', 'cookies settings', 'cookies preferences']
 
 driver = webdriver.Chrome(options=chrome_options, service=service)
